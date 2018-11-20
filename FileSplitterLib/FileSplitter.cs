@@ -30,7 +30,7 @@ namespace FileSplitterLib
 
                     if (offset + TAM_BUFFER > tam)
                     {
-                        if(tam - offset > f.Length - f.Position)
+                        if (tam - offset > f.Length - f.Position)
                         {
                             arrsize = (int)(f.Length - f.Position);
                         }
@@ -71,11 +71,38 @@ namespace FileSplitterLib
 
             List<FileInfo> res = arqs.FindAll(x => x.Name.Contains(subStr));
             FileStream arqFinal = File.Create(di.FullName + "\\" + subStr);
-
-            foreach(FileInfo fi in res)
+            
+            foreach (FileInfo fi in res)
             {
-                byte[] arr = File.ReadAllBytes(fi.FullName);
-                arqFinal.Write(arr, 0, arr.Length);
+                FileStream parte = fi.Open(FileMode.Open);
+
+                long offset = 0;
+
+                while (offset < parte.Length)
+                {
+                    byte[] arr;
+                    int arrsize;
+
+                    if (offset + TAM_BUFFER > parte.Length)
+                    {
+                        arrsize = (int)(parte.Length - offset);
+                    }
+                    else
+                    {
+                        arrsize = TAM_BUFFER;
+                    }
+
+                    arr = new byte[arrsize];
+
+                    offset += parte.Read(arr, 0, arrsize);
+
+                    arqFinal.Write(arr, 0, arr.Length);
+                    arqFinal.Flush();
+
+                    arr = null;
+                }
+
+                parte.Close();
             }
 
             arqFinal.Close();
