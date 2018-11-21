@@ -37,6 +37,8 @@
             this.lblNumeroPartes = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
             this.ofdArquivo = new System.Windows.Forms.OpenFileDialog();
+            this.pgbProgressoArquivo = new System.Windows.Forms.ProgressBar();
+            this.lblProgresso = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // ttbNomeArquivo
@@ -109,15 +111,29 @@
             this.lblStatus.Size = new System.Drawing.Size(0, 13);
             this.lblStatus.TabIndex = 7;
             // 
-            // ofdArquivo
+            // pgbProgressoArquivo
             // 
-            this.ofdArquivo.FileName = "openFileDialog1";
+            this.pgbProgressoArquivo.Location = new System.Drawing.Point(12, 257);
+            this.pgbProgressoArquivo.Name = "pgbProgressoArquivo";
+            this.pgbProgressoArquivo.Size = new System.Drawing.Size(458, 23);
+            this.pgbProgressoArquivo.TabIndex = 8;
+            // 
+            // lblProgresso
+            // 
+            this.lblProgresso.AutoSize = true;
+            this.lblProgresso.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblProgresso.Location = new System.Drawing.Point(12, 238);
+            this.lblProgresso.Name = "lblProgresso";
+            this.lblProgresso.Size = new System.Drawing.Size(0, 13);
+            this.lblProgresso.TabIndex = 9;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(485, 263);
+            this.ClientSize = new System.Drawing.Size(485, 292);
+            this.Controls.Add(this.lblProgresso);
+            this.Controls.Add(this.pgbProgressoArquivo);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblNumeroPartes);
             this.Controls.Add(this.lblCaminho);
@@ -146,6 +162,8 @@
         private System.Windows.Forms.Label lblNumeroPartes;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.OpenFileDialog ofdArquivo;
+        private System.Windows.Forms.ProgressBar pgbProgressoArquivo;
+        private System.Windows.Forms.Label lblProgresso;
     }
 }
 

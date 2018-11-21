@@ -21,32 +21,80 @@ namespace FileSplitter
             InitializeComponent();
         }
 
-        private void btnDividir_Click(object sender, EventArgs e)
+        private async void btnDividir_Click(object sender, EventArgs e)
         {
             LerParametros();
 
+            if (!ValidarArquivo())
+            {
+                return;
+            }
+
+            pgbProgressoArquivo.Maximum = 100;
+            pgbProgressoArquivo.Step = 1;
+
+            var progress = new Progress<int>(v =>
+            {
+                pgbProgressoArquivo.Value = v;
+                lblProgresso.Text = "Processando parte " + (v * numeroPartes / 100) + " de " + numeroPartes;
+            });
+
+            AlterarInterface(false);
+            lblStatus.Text = "";
+            lblTempo.Text = "";
+
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            FileSplitterLib.FileSplitter.DividirArquivo(caminhoArquivo, numeroPartes);
+            Task task = FileSplitterLib.FileSplitter.DividirArquivo(caminhoArquivo, numeroPartes, progress);
+
+            await task;
 
             watch.Stop();
+
             lblTempo.Text = "Tempo total: " + ((double)watch.ElapsedMilliseconds / 1000) + "s";
             lblStatus.Text = "Operação completada";
             lblStatus.ForeColor = Color.DarkGreen;
+
+            AlterarInterface(true);
         }
-        
-        private void btnJuntar_Click(object sender, EventArgs e)
+
+        private async void btnJuntar_Click(object sender, EventArgs e)
         {
-            LerParametros();
+            caminhoArquivo = ttbNomeArquivo.Text;
+
+            if (!ValidarArquivo())
+            {
+                return;
+            }
+
+            numeroPartes = GetNumeroPartes();
+
+            pgbProgressoArquivo.Maximum = 100;
+            pgbProgressoArquivo.Step = 1;
+
+            var progress = new Progress<int>(v =>
+            {
+                pgbProgressoArquivo.Value = v;
+                lblProgresso.Text = "Processando parte " + (v * numeroPartes / 100) + " de " + numeroPartes;
+            });
+
+            AlterarInterface(false);
+            lblStatus.Text = "";
+            lblTempo.Text = "";
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            FileSplitterLib.FileSplitter.JuntarArquivo(caminhoArquivo);
+            Task task = FileSplitterLib.FileSplitter.JuntarArquivo(caminhoArquivo, progress);
+
+            await task;
 
             watch.Stop();
+
             lblTempo.Text = "Tempo total: " + ((double)watch.ElapsedMilliseconds / 1000) + "s";
             lblStatus.Text = "Operação completada";
             lblStatus.ForeColor = Color.DarkGreen;
+
+            AlterarInterface(true);
         }
 
         private void LerParametros()
@@ -59,10 +107,47 @@ namespace FileSplitter
         {
             DialogResult fd = ofdArquivo.ShowDialog();
 
-            if(fd == DialogResult.OK)
+            if (fd == DialogResult.OK)
             {
                 ttbNomeArquivo.Text = ofdArquivo.FileName;
             }
+        }
+
+        private void AlterarInterface(bool habilitado)
+        {
+            btnDividir.Enabled = habilitado;
+            btnJuntar.Enabled = habilitado;
+            ttbNomeArquivo.Enabled = habilitado;
+            ttbNumeroPartes.Enabled = habilitado;
+        }
+
+        private bool ValidarArquivo()
+        {
+            if (!File.Exists(caminhoArquivo))
+            {
+                MessageBox.Show("O caminho de arquivo informado não existe", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if(File.GetAttributes(caminhoArquivo) == FileAttributes.Directory)
+            {
+                MessageBox.Show("O caminho informado é um diretório", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        private int GetNumeroPartes()
+        {
+            DirectoryInfo di = Directory.GetParent(caminhoArquivo);
+            List<FileInfo> arqs = di.GetFiles().ToList();
+            FileInfo arq = new FileInfo(caminhoArquivo);
+            string subStr = arq.Name.Substring(0, arq.Name.LastIndexOf('.'));
+            List<FileInfo> res = arqs.FindAll(x => x.Name.Contains(subStr));
+
+            return res.Count;
+
         }
     }
 }
